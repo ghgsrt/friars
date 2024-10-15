@@ -102,14 +102,13 @@ export async function EntriesView({
 }) {
 	const _entries = await getAllEntries();
 
-	console.log(_entries.length);
-
 	const entries: Entry[] = [];
 	const canceledEntries: Entry[] = [];
 	const deletedEntries: Entry[] = [];
 
-	let csvString = Object.keys(_entries[0]).join(',') + '\n';
-
+	let csvString;
+	if (_entries.length > 0)
+		csvString = Object.keys(_entries[0]).join(',') + '\n';
 	for (const entry of _entries) {
 		csvString += Object.values(entry).join(',') + '\n';
 
