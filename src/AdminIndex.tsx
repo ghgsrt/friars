@@ -1,5 +1,4 @@
 import Html from '@kitajs/html';
-import { redirect } from 'elysia';
 import { EntriesView } from './views/Entries';
 import { EmailView } from './views/Email';
 import Modal from './components/Modal';
@@ -12,7 +11,6 @@ export function Index(props: { children: JSX.Element }) {
 			<html lang='en'>
 				<head>
 					<meta charset='UTF-8' />
-					<link rel='icon' href='' />
 					<meta
 						name='viewport'
 						content='width=device-width, initial-scale=1.0'

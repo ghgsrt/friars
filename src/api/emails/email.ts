@@ -20,7 +20,6 @@ import {
 } from '@aws-sdk/client-ses';
 import { dateStringToComponents, compareDateComponents } from '../../utils';
 import { sesClient } from './aws';
-import { GetEntry } from '../entries/entry';
 
 export async function GetHook(name: Hook) {
 	return await getHook(name);

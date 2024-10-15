@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { drizzle } from 'drizzle-orm/bun-sqlite';
 import { Database } from 'bun:sqlite';
 import { Email, emails, entries, Entry, Hook } from './schema';

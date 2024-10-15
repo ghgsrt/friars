@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
 import { html } from '@elysiajs/html';
-import Elysia, { Cookie, redirect, t } from 'elysia';
+import Elysia, { redirect, t } from 'elysia';
 import Modal, { modal } from './src/components/Modal';
-import { Home, HomeView, Index, Login, LoginView } from './src/AdminIndex';
+import { HomeView, Login, LoginView } from './src/AdminIndex';
 import {
 	CancelEmail,
 	DeleteEmail,
@@ -52,8 +52,6 @@ export const login: (body: any) => Promise<boolean> = async ({
 		username: string;
 		password: string;
 	};
-
-	console.log(password, username, ADMIN_PASSWORD, ADMIN_USERNAME);
 
 	if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
 		return false;
@@ -141,7 +139,7 @@ const app = new Elysia()
 		if (!cookie.userId.value) {
 			cookie.userId.value = randomUUID();
 			cookie.userId.httpOnly = true;
-			cookie.userId.secure = true;
+			cookie.auth.secure = import.meta.env.NODE_ENV === 'production';
 			cookie.userId.sameSite = 'lax';
 			cookie.userId.expires = new Date(Date.now() + 86400000 * 31);
 		}
@@ -161,7 +159,6 @@ const app = new Elysia()
 	.get('/admin/logout', ({ cookie }) => {
 		cookie.auth.value = '';
 		cookie.auth.expires = new Date(Date.now() - 100000);
-		console.log('hm');
 		return redirect('/admin');
 	})
 
@@ -291,7 +288,6 @@ const app = new Elysia()
 								alert='this action cannot be undone (yet)'
 								onConfirm={({ body }: any) => {
 									PatchEntry(id, body as EntryPatchRequest);
-
 									return 'refresh:entries';
 								}}
 							>
