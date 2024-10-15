@@ -40,7 +40,7 @@ export async function sendEmail(email: Email, entry: Entry) {
 	const params: SendTemplatedEmailCommandInput = {
 		Source: process.env.VERIFIED_EMAIL,
 		Template: 'GenericTemplate',
-		// ConfigurationSetName: 'Email',
+		ConfigurationSetName: 'Email',
 		Destination: { ToAddresses: [entry.email] },
 		TemplateData: JSON.stringify({
 			subject: await processTemplate(email.subject!, entry),
@@ -81,6 +81,7 @@ async function _sendBulkEmail(email: Email, entries: Entry[]) {
 	const params: SendBulkTemplatedEmailCommandInput = {
 		Source: process.env.VERIFIED_EMAIL,
 		Template: 'GenericTemplate',
+		ConfigurationSetName: 'Email',
 		Destinations: await Promise.all(
 			entries.map(async (entry) => ({
 				Destination: { ToAddresses: [entry.email] },
