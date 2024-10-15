@@ -63,53 +63,53 @@ export async function sessionStatus(sessionId: string) {
 	};
 }
 
-export const webhooks: Parameters<Elysia['post']>[1] = async ({
-	request,
-	set,
-}) => {
-	const sig = request.headers.get('stripe-signature');
+// export const webhooks: Parameters<Elysia['post']>[1] = async ({
+// 	request,
+// 	set,
+// }) => {
+// 	const sig = request.headers.get('stripe-signature');
 
-	if (!sig) {
-		set.status = 400;
-		return { error: 'No Stripe signature found' };
-	}
+// 	if (!sig) {
+// 		set.status = 400;
+// 		return { error: 'No Stripe signature found' };
+// 	}
 
-	try {
-		const body = await request.text();
-		const event = stripe.webhooks.constructEvent(
-			body,
-			sig,
-			process.env.STRIPE_WEBHOOK!
-		);
+// 	try {
+// 		const body = await request.text();
+// 		const event = stripe.webhooks.constructEvent(
+// 			body,
+// 			sig,
+// 			process.env.STRIPE_WEBHOOK!
+// 		);
 
-		switch (event.type) {
-			case 'payment_intent.succeeded':
-				const paymentIntent = event.data.object as Stripe.PaymentIntent;
-				const entry = await onPaymentSuccess(paymentIntent);
-				if (!entry) {
-					console.error('oh gosh');
-					break;
-				}
+// 		switch (event.type) {
+// 			case 'payment_intent.succeeded':
+// 				const paymentIntent = event.data.object as Stripe.PaymentIntent;
+// 				const entry = await onPaymentSuccess(paymentIntent);
+// 				if (!entry) {
+// 					console.error('oh gosh');
+// 					break;
+// 				}
 
-				const afterRegistrationEmail = await GetHook(Hook.AfterRegistration);
+// 				const afterRegistrationEmail = await GetHook(Hook.AfterRegistration);
 
-				await sendEmail(afterRegistrationEmail, entry);
+// 				await sendEmail(afterRegistrationEmail, entry);
 
-				break;
-			// ... handle other event types
-			default:
-				console.log(`Unhandled event type ${event.type}`);
-		}
+// 				break;
+// 			// ... handle other event types
+// 			default:
+// 				console.log(`Unhandled event type ${event.type}`);
+// 		}
 
-		return { received: true };
-	} catch (err) {
-		console.error(err);
-		set.status = 400;
-		return { error: `Webhook Error: ${(err as any).message}` };
-	}
-};
+// 		return { received: true };
+// 	} catch (err) {
+// 		console.error(err);
+// 		set.status = 400;
+// 		return { error: `Webhook Error: ${(err as any).message}` };
+// 	}
+// };
 
-async function onPaymentSuccess(intent: Stripe.PaymentIntent) {
+export async function onPaymentSuccess(intent: Stripe.PaymentIntent) {
 	const entry = intent.metadata.entry;
 	console.log(entry);
 
