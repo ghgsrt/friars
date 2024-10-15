@@ -1,0 +1,31 @@
+{
+	"name": "friars-registration-system",
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "bun run --watch index.tsx",
+		"build": "bun build index.tsx --target=bun",
+		"start": "NODE_ENV=production bun index.tsx",
+		"schema": "bunx drizzle-kit generate --dialect sqlite --schema src/api/database/schema.ts",
+		"reset": "bun run src/api/database/reset.ts",
+		"resetDB": "(rm sqlite.db || true) && (rm -r drizzle || true) && bun run schema && bun run reset"
+	},
+	"dependencies": {
+		"@aws-sdk/client-ses": "^3.670.0",
+		"@elysiajs/html": "1.0.0",
+		"drizzle-orm": "^0.34.1",
+		"elysia": "latest",
+		"sanitize-html": "^2.13.0",
+		"stripe": "^17.2.0"
+	},
+	"devDependencies": {
+		"@elysiajs/eden": "^1.1.2",
+		"@flydotio/dockerfile": "^0.5.8",
+		"@kitajs/ts-html-plugin": "^4.0.2",
+		"@types/sanitize-html": "^2.13.0",
+		"bun-types": "latest",
+		"drizzle-kit": "^0.25.0"
+	},
+	"module": "index.js"
+}

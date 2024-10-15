@@ -1,0 +1,157 @@
+:root {
+	--clr-lines: rgb(112, 112, 112);
+
+	--width: calc(100dvh * 9 / 16);
+	font-size: calc(var(--width) / 25);
+}
+
+body {
+	margin: 0 auto;
+	height: 100dvh;
+	width: var(--width);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+		'Helvetica Neue', 'Ubuntu', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	/* position: relative; */
+}
+
+#app {
+	width: 100%;
+	height: 100%;
+}
+
+main {
+	padding: 0.25rem;
+	width: 100%;
+	height: 100%;
+}
+
+#register {
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+#register-form {
+	width: 100%;
+	padding: 0 0.5rem;
+}
+
+div:has(> #checkout) {
+	position: absolute;
+	left: 110%;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	transition: left 400ms ease-in-out;
+	flex-direction: column;
+}
+div.show:has(> #checkout) {
+	left: 0;
+}
+#checkout {
+	width: 100%;
+	background-color: white;
+	height: 100%;
+}
+button.back {
+	margin: 0.25rem;
+	width: min-content;
+	align-self: start;
+}
+h2 {
+	text-align: center;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+}
+form
+	> :not(
+		label:not(:has(input)),
+		:is(#register-btn, #checkout-btn),
+		:last-child
+	) {
+	margin-bottom: 0.5rem;
+}
+
+form:has(:invalid, :required:placeholder-shown)
+	:is(#register-btn, #checkout-btn) {
+	pointer-events: none;
+	background-color: rgba(173, 173, 173, 0.131);
+	color: rgb(156, 156, 156) !important;
+}
+
+label {
+	display: flex;
+	/* flex-direction: column; */
+}
+label:has(+ :required)::after {
+	content: '*';
+	color: red;
+}
+
+input {
+	cursor: text;
+	outline: 0.0625rem solid black;
+	border-radius: 0.25rem;
+}
+input[role$='slave'] {
+	display: none;
+}
+
+button {
+	/* border: 0.125rem solid var(--clr-foreground); */
+	background-color: unset;
+	/* background: var(--clr-fore) !important; */
+	outline: none;
+	border-radius: 0.5rem;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	transition: background 0.1s, color 0.1s;
+	width: 100%;
+	white-space: nowrap;
+	box-shadow: 0 0 0.33rem 0 var(--clr-lines);
+}
+
+button:has(:checked) {
+	box-shadow: inset 0 0 0.33rem 0 var(--clr-lines);
+	background-color: rgba(173, 173, 173, 0.131);
+}
+
+input {
+	/* background: var(--clr-foreground) !important; */
+	/* background: inherit; */
+	/* color: var(--clr-text); */
+	border-radius: 0.5rem;
+	padding: 0.5rem;
+	width: 100%;
+	cursor: text;
+	transition: outline 0.1s;
+	outline: none;
+	/* border: 0.0625rem solid var(--clr-background); */
+	background-color: transparent;
+	color-scheme: light;
+}
+input:not([type='checkbox']) {
+	box-shadow: inset 0 0 0.25rem 0 var(--clr-lines);
+}
+
+#register-btn,
+#checkout-btn {
+	display: none;
+}
+#register-form:not(:has(button > :checked)) #register-btn {
+	display: block;
+}
+#register-form:has(button > :checked) #checkout-btn {
+	display: block;
+}
+
