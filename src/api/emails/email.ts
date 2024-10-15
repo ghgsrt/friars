@@ -56,6 +56,8 @@ export async function sendEmail(email: Email, entry: Entry) {
 }
 
 async function _sendBulkEmail(email: Email, entries: Entry[]) {
+	if (entries.length === 0) return;
+
 	const params: SendBulkTemplatedEmailCommandInput = {
 		Source: process.env.VERIFIED_EMAIL,
 		Template: 'GenericTemplate',
