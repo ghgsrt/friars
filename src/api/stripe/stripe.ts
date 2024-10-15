@@ -8,8 +8,6 @@ import Elysia from 'elysia';
 import { GetHook, sendEmail } from '../emails/email';
 import { Hook } from '../db/schema';
 
-export const STRIPE = new stripe(process.env.STRIPE_SK!);
-
 const line_items = [
 	{
 		price: 'price_1Q9WHzJiEyN7wcKPfRrnyVVP',
@@ -26,6 +24,8 @@ const line_items = [
 ];
 
 export async function createCheckoutSession(entryReq: EntryPostRequest) {
+	const STRIPE = new stripe(process.env.STRIPE_SK!);
+
 	const items: typeof line_items = [];
 
 	//! prevent paying twice
@@ -57,6 +57,8 @@ export async function createCheckoutSession(entryReq: EntryPostRequest) {
 }
 
 export async function sessionStatus(sessionId: string) {
+	const STRIPE = new stripe(process.env.STRIPE_SK!);
+
 	const session = await STRIPE.checkout.sessions.retrieve(sessionId);
 
 	return {

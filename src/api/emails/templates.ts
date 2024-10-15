@@ -6,11 +6,20 @@ import {
 	ListTemplatesCommand,
 	ListTemplatesCommandOutput,
 	DeleteTemplateCommandInput,
+	SESClient,
 } from '@aws-sdk/client-ses';
 import { Email } from '../db/schema';
-import { sesClient } from './aws';
+// import { sesClient } from './aws';
 
 export async function createGenericTemplate() {
+	const sesClient = new SESClient({
+		region: process.env.AWS_REGION!,
+		credentials: {
+			accessKeyId: process.env.AWS_AK!,
+			secretAccessKey: process.env.AWS_AK_SECRET!,
+		},
+	});
+
 	const params: CreateTemplateCommandInput = {
 		Template: {
 			TemplateName: 'GenericTemplate',
@@ -22,6 +31,8 @@ export async function createGenericTemplate() {
 
 	await sesClient.send(new CreateTemplateCommand(params));
 	console.log('Generic template created');
+
+	sesClient.destroy();
 }
 
 export function emailToSESTemplate(
@@ -50,12 +61,22 @@ export async function createEmailTemplate(email: Email) {
 
 	if (!template) return;
 
+	const sesClient = new SESClient({
+		region: process.env.AWS_REGION!,
+		credentials: {
+			accessKeyId: process.env.AWS_AK!,
+			secretAccessKey: process.env.AWS_AK_SECRET!,
+		},
+	});
+
 	try {
 		const command = new CreateTemplateCommand(template);
 		const response = await sesClient.send(command);
 		console.log('Email template created successfully:', response);
 	} catch (error) {
 		console.error('Error creating email template:', error);
+	} finally {
+		sesClient.destroy();
 	}
 }
 
@@ -64,16 +85,34 @@ export async function updateEmailTemplate(email: Email) {
 
 	if (!template) return;
 
+	const sesClient = new SESClient({
+		region: process.env.AWS_REGION!,
+		credentials: {
+			accessKeyId: process.env.AWS_AK!,
+			secretAccessKey: process.env.AWS_AK_SECRET!,
+		},
+	});
+
 	try {
 		const command = new UpdateTemplateCommand(template);
 		const response = await sesClient.send(command);
 		console.log('Email template updated successfully:', response);
 	} catch (error) {
 		console.error('Error updating email template:', error);
+	} finally {
+		sesClient.destroy();
 	}
 }
 
 export async function deleteEmailTemplate(email: Email | string) {
+	const sesClient = new SESClient({
+		region: process.env.AWS_REGION!,
+		credentials: {
+			accessKeyId: process.env.AWS_AK!,
+			secretAccessKey: process.env.AWS_AK_SECRET!,
+		},
+	});
+
 	try {
 		const command = new DeleteTemplateCommand({
 			TemplateName:
@@ -83,10 +122,20 @@ export async function deleteEmailTemplate(email: Email | string) {
 		console.log('Email template updated successfully:', response);
 	} catch (error) {
 		console.error('Error updating email template:', error);
+	} finally {
+		sesClient.destroy();
 	}
 }
 
 export async function deleteAllTemplates() {
+	const sesClient = new SESClient({
+		region: process.env.AWS_REGION!,
+		credentials: {
+			accessKeyId: process.env.AWS_AK!,
+			secretAccessKey: process.env.AWS_AK_SECRET!,
+		},
+	});
+
 	try {
 		const listCommand = new ListTemplatesCommand({});
 		let templatesResponse: ListTemplatesCommandOutput;
@@ -114,5 +163,7 @@ export async function deleteAllTemplates() {
 		console.log('All templates have been deleted.');
 	} catch (error) {
 		console.error('Error deleting templates:', error);
+	} finally {
+		sesClient.destroy();
 	}
 }

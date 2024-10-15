@@ -17,9 +17,10 @@ import {
 	SendBulkTemplatedEmailCommandInput,
 	SendTemplatedEmailCommand,
 	SendTemplatedEmailCommandInput,
+	SESClient,
 } from '@aws-sdk/client-ses';
 import { dateStringToComponents, compareDateComponents } from '../../utils';
-import { sesClient } from './aws';
+// import { sesClient } from './aws';
 
 export async function GetHook(name: Hook) {
 	return await getHook(name);
@@ -27,6 +28,14 @@ export async function GetHook(name: Hook) {
 
 export async function sendEmail(email: Email, entry: Entry) {
 	if (!email || !entry) return;
+
+	const sesClient = new SESClient({
+		region: process.env.AWS_REGION!,
+		credentials: {
+			accessKeyId: process.env.AWS_AK!,
+			secretAccessKey: process.env.AWS_AK_SECRET!,
+		},
+	});
 
 	const params: SendTemplatedEmailCommandInput = {
 		Source: process.env.VERIFIED_EMAIL,
@@ -53,11 +62,21 @@ export async function sendEmail(email: Email, entry: Entry) {
 
 		console.error('Error sending email:', error);
 		throw error;
+	} finally {
+		sesClient.destroy();
 	}
 }
 
 async function _sendBulkEmail(email: Email, entries: Entry[]) {
 	if (entries.length === 0) return;
+
+	const sesClient = new SESClient({
+		region: process.env.AWS_REGION!,
+		credentials: {
+			accessKeyId: process.env.AWS_AK!,
+			secretAccessKey: process.env.AWS_AK_SECRET!,
+		},
+	});
 
 	const params: SendBulkTemplatedEmailCommandInput = {
 		Source: process.env.VERIFIED_EMAIL,
@@ -91,6 +110,8 @@ async function _sendBulkEmail(email: Email, entries: Entry[]) {
 
 		console.error('Error sending bulk emails:', error);
 		throw error;
+	} finally {
+		sesClient.destroy();
 	}
 }
 
