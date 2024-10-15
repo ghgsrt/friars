@@ -65,7 +65,7 @@ export function ReturnView({ entry }: { entry: Entry }) {
 	return (
 		<Index>
 			<>
-				<Return entry={entry} />;
+				<Return entry={entry} />
 			</>
 		</Index>
 	);

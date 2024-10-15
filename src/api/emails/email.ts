@@ -26,11 +26,12 @@ export async function GetHook(name: Hook) {
 }
 
 export async function sendEmail(email: Email, entry: Entry) {
-	console.log(email, entry);
+	if (!email || !entry) return;
+
 	const params: SendTemplatedEmailCommandInput = {
 		Source: process.env.VERIFIED_EMAIL,
 		Template: 'GenericTemplate',
-		ConfigurationSetName: 'Email',
+		// ConfigurationSetName: 'Email',
 		Destination: { ToAddresses: [entry.email] },
 		TemplateData: JSON.stringify({
 			subject: await processTemplate(email.subject!, entry),

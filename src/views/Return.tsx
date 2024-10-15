@@ -13,7 +13,7 @@ export function Return({ entry }: { entry: Entry }) {
 				back
 			</button>
 			<h1>TICKET GOES HERE</h1>
-			<p>Registration was successful, hombre</p>
+			<p>Registration was successful, {entry.firstName}!</p>
 			<p>
 				<strong>Registration ID: </strong>
 				{entry.id}
