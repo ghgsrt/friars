@@ -9,12 +9,10 @@ import {
 	EmailPatchRequest,
 	EmailPostRequest,
 	GetEmail,
-	GetHook,
 	listenForEmails,
 	PatchEmail,
 	PostEmail,
 	ReviveEmail,
-	sendEmail,
 } from './src/api/emails/email';
 import {
 	CancelEntries,
@@ -30,20 +28,13 @@ import {
 import { EmailForm, NewEmail, EmailLists } from './src/views/Email';
 import { EntriesView } from './src/views/Entries';
 import { ProcessingView, RegisterView, ReturnView } from './src/RegIndex';
-import {
-	createCheckoutSession,
-	onPaymentSuccess,
-	webhooks,
-} from './src/api/stripe/stripe';
+import { createCheckoutSession, webhooks } from './src/api/stripe/stripe';
 import { Processing } from './src/views/Processing';
 import { Ticket } from './src/views/Ticket';
 import { Return } from './src/views/Return';
 import { RegisterForm, RegisterFormControls } from './src/views/Register';
 import { jwt } from '@elysiajs/jwt';
 import { seed } from './src/api/db/seed';
-import Stripe from 'stripe';
-import stripe from 'stripe';
-import { Hook } from './src/api/db/schema';
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -139,50 +130,7 @@ const app = new Elysia()
 
 				return createCheckoutSession(body as EntryPostRequest);
 			})
-			.post('/webhooks', async ({ request, set }) => {
-				const sig = request.headers.get('stripe-signature');
-
-				if (!sig) {
-					set.status = 400;
-					return { error: 'No Stripe signature found' };
-				}
-
-				try {
-					const body = await request.text();
-					const event = stripe.webhooks.constructEvent(
-						body,
-						sig,
-						process.env.STRIPE_WEBHOOK!
-					);
-
-					switch (event.type) {
-						case 'payment_intent.succeeded':
-							const paymentIntent = event.data.object as Stripe.PaymentIntent;
-							const entry = await onPaymentSuccess(paymentIntent);
-							if (!entry) {
-								console.error('oh gosh');
-								break;
-							}
-
-							const afterRegistrationEmail = await GetHook(
-								Hook.AfterRegistration
-							);
-
-							await sendEmail(afterRegistrationEmail, entry);
-
-							break;
-						// ... handle other event types
-						default:
-							console.log(`Unhandled event type ${event.type}`);
-					}
-
-					return { received: true };
-				} catch (err) {
-					console.error(err);
-					set.status = 400;
-					return { error: `Webhook Error: ${(err as any).message}` };
-				}
-			})
+			.post('/webhooks', webhooks)
 	)
 
 	.get('/admin/styles.css', () => Bun.file('./src/styles/adminStyles.css'))
