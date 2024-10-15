@@ -34,6 +34,7 @@ import { Ticket } from './src/views/Ticket';
 import { Return } from './src/views/Return';
 import { RegisterForm, RegisterFormControls } from './src/views/Register';
 import { jwt } from '@elysiajs/jwt';
+import { seed } from './src/api/db/seed';
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
@@ -171,6 +172,8 @@ const app = new Elysia()
 				if (!jwt.verify(cookie.auth.value))
 					return (set.status = 'Unauthorized');
 			})
+
+			.get('/seed', seed)
 
 			.post('/entries-view', ({ body }) => {
 				return (
