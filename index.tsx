@@ -130,7 +130,7 @@ const app = new Elysia()
 
 				return createCheckoutSession(body as EntryPostRequest);
 			})
-			.post('/webhooks', webhooks)
+			.post('/webhooks', async (props) => await (webhooks as Function)(props))
 	)
 
 	.get('/admin/styles.css', () => Bun.file('./src/styles/adminStyles.css'))
