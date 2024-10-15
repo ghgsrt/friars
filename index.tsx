@@ -35,9 +35,9 @@ import { Return } from './src/views/Return';
 import { RegisterForm, RegisterFormControls } from './src/views/Register';
 import { jwt } from '@elysiajs/jwt';
 
-const ADMIN_USERNAME = import.meta.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = import.meta.env.ADMIN_PASSWORD;
-const JWT_SECRET = import.meta.env.JWT_SECRET;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !JWT_SECRET) {
 	throw new Error('Missing required environment variables');
@@ -61,7 +61,7 @@ export const login: (body: any) => Promise<boolean> = async ({
 
 	cookie.auth.value = token;
 	cookie.auth.httpOnly = true;
-	cookie.auth.secure = import.meta.env.NODE_ENV === 'production';
+	cookie.auth.secure = process.env.NODE_ENV === 'production';
 	cookie.auth.maxAge = 7 * 24 * 60 * 60; // 1 week;
 
 	return true;
@@ -119,7 +119,7 @@ const app = new Elysia()
 
 	.group('/stripe', (app) =>
 		app
-			.get('/pk', () => import.meta.env.STRIPE_PK)
+			.get('/pk', () => process.env.STRIPE_PK)
 			.post('/create-checkout-session', ({ body }) => {
 				const email = (body as any).email as string;
 				const [name, host] = email.split('@');
@@ -139,7 +139,7 @@ const app = new Elysia()
 		if (!cookie.userId.value) {
 			cookie.userId.value = randomUUID();
 			cookie.userId.httpOnly = true;
-			cookie.auth.secure = import.meta.env.NODE_ENV === 'production';
+			cookie.auth.secure = process.env.NODE_ENV === 'production';
 			cookie.userId.sameSite = 'lax';
 			cookie.userId.expires = new Date(Date.now() + 86400000 * 31);
 		}
@@ -316,6 +316,6 @@ const app = new Elysia()
 					)
 			)
 	)
-	.listen(3005);
+	.listen(3000);
 
 listenForEmails();

@@ -10,8 +10,8 @@ import {
 	insertEmail,
 	reviveEmail,
 	updateEmail,
-} from '../database/db';
-import { Email, Entry, Hook } from '../database/schema';
+} from '../db/db';
+import { Email, Entry, Hook } from '../db/schema';
 import {
 	SendBulkTemplatedEmailCommand,
 	SendBulkTemplatedEmailCommandInput,
@@ -28,7 +28,7 @@ export async function GetHook(name: Hook) {
 export async function sendEmail(email: Email, entry: Entry) {
 	console.log(email, entry);
 	const params: SendTemplatedEmailCommandInput = {
-		Source: import.meta.env.VERIFIED_EMAIL,
+		Source: process.env.VERIFIED_EMAIL,
 		Template: 'GenericTemplate',
 		ConfigurationSetName: 'Email',
 		Destination: { ToAddresses: [entry.email] },
@@ -57,7 +57,7 @@ export async function sendEmail(email: Email, entry: Entry) {
 
 async function _sendBulkEmail(email: Email, entries: Entry[]) {
 	const params: SendBulkTemplatedEmailCommandInput = {
-		Source: import.meta.env.VERIFIED_EMAIL,
+		Source: process.env.VERIFIED_EMAIL,
 		Template: 'GenericTemplate',
 		Destinations: await Promise.all(
 			entries.map(async (entry) => ({

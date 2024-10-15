@@ -1,4 +1,4 @@
-import { Entry } from '../api/database/schema';
+import { Entry } from '../api/db/schema';
 
 export function RegisterFormControls({ entry }: { entry?: Entry }) {
 	return (
@@ -27,7 +27,7 @@ export function RegisterFormControls({ entry }: { entry?: Entry }) {
 				value={entry?.email}
 				placeholder=''
 				required
-			/>
+			/> 
 			<br />
 			<button
 				disabled={!!entry?.event1}

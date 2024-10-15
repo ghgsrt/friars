@@ -1,4 +1,4 @@
-import { Entry } from '../database/schema';
+import { Entry } from '../db/schema';
 import type { Request } from '../../types/types';
 import {
 	cancelEntries,
@@ -10,7 +10,7 @@ import {
 	reviveEntries,
 	softDeleteEntries,
 	updateEntry,
-} from '../database/db';
+} from '../db/db';
 
 type ImmutableEntryProps =
 	| 'id'

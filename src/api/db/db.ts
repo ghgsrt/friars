@@ -1,14 +1,18 @@
-import { drizzle } from 'drizzle-orm/bun-sqlite';
-import { Database } from 'bun:sqlite';
+import { drizzle } from 'drizzle-orm/neon-http';
 import { Email, emails, entries, Entry, Hook } from './schema';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { seed } from './seed';
+import { neon } from '@neondatabase/serverless';
 
-const sqlite = new Database('sqlite.db');
-export const db = drizzle(sqlite);
+export let db: ReturnType<typeof drizzle>;
 
-if (import.meta.env.DEMO === 'true') {
-	if (db.select().from(entries).all().length === 0) seed();
+if (process.env.DEMO === 'true') {
+	const sqldb = neon(process.env.DEMO_NEON_DATABASE_URL!);
+	db = drizzle(sqldb);
+	if ((await db.select().from(entries)).length === 0) seed();
+} else {
+	const sqldb = neon(process.env.NEON_DATABASE_URL!);
+	db = drizzle(sqldb);
 }
 
 export const getEntry = async (id: number) =>

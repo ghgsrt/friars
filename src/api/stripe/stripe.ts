@@ -6,9 +6,9 @@ import {
 } from '../entries/entry';
 import Elysia from 'elysia';
 import { GetHook, sendEmail } from '../emails/email';
-import { Hook } from '../database/schema';
+import { Hook } from '../db/schema';
 
-export const STRIPE = new stripe(import.meta.env.STRIPE_SK!);
+export const STRIPE = new stripe(process.env.STRIPE_SK!);
 
 const line_items = [
 	{
@@ -44,7 +44,7 @@ export async function createCheckoutSession(entryReq: EntryPostRequest) {
 		ui_mode: 'embedded',
 		line_items: items,
 		mode: 'payment',
-		return_url: `${import.meta.env.URL}/return/${entryReq.email}`,
+		return_url: `${process.env.URL}/return/${entryReq.email}`,
 		customer_email: entryReq.email,
 		metadata: {
 			entry: JSON.stringify(entryReq),
@@ -79,7 +79,7 @@ export const webhooks: Parameters<Elysia['post']>[1] = async ({
 		const event = stripe.webhooks.constructEvent(
 			body,
 			sig,
-			import.meta.env.STRIPE_WEBHOOK!
+			process.env.STRIPE_WEBHOOK!
 		);
 
 		switch (event.type) {

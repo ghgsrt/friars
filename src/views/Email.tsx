@@ -1,5 +1,5 @@
-import { getAllEmails } from '../api/database/db';
-import { Email } from '../api/database/schema';
+import { getAllEmails } from '../api/db/db';
+import { Email } from '../api/db/schema';
 import { processTemplate } from '../api/emails/email';
 import { Tab, TabGroup } from '../components/Tabs';
 import { DeleteIcon, EditIcon, RefreshIcon } from '../icons/icon';

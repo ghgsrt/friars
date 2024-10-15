@@ -1,7 +1,7 @@
 import Html from '@kitajs/html';
 import { RegisterForm } from './views/Register';
 import { Processing } from './views/Processing';
-import { Entry } from './api/database/schema';
+import { Entry } from './api/db/schema';
 import { Return } from './views/Return';
 
 export function Index(props: { children: JSX.Element }) {

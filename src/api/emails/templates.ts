@@ -7,7 +7,7 @@ import {
 	ListTemplatesCommandOutput,
 	DeleteTemplateCommandInput,
 } from '@aws-sdk/client-ses';
-import { Email } from '../database/schema';
+import { Email } from '../db/schema';
 import { sesClient } from './aws';
 
 export async function createGenericTemplate() {

@@ -1,5 +1,5 @@
-import { getAllEntries } from '../api/database/db';
-import { Entry } from '../api/database/schema';
+import { getAllEntries } from '../api/db/db';
+import { Entry } from '../api/db/schema';
 import { Tab, TabGroup } from '../components/Tabs';
 import { RefreshIcon } from '../icons/icon';
 

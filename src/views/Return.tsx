@@ -1,4 +1,4 @@
-import { Entry } from '../api/database/schema';
+import { Entry } from '../api/db/schema';
 
 export function Return({ entry }: { entry: Entry }) {
 	return (
