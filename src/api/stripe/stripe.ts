@@ -46,8 +46,10 @@ export async function createCheckoutSession(entryReq: EntryPostRequest) {
 		mode: 'payment',
 		return_url: `${process.env.URL}/return/${entryReq.email}`,
 		customer_email: entryReq.email,
-		metadata: {
-			entry: JSON.stringify(entryReq),
+		payment_intent_data: {
+			metadata: {
+				entry: JSON.stringify(entryReq),
+			},
 		},
 	});
 
