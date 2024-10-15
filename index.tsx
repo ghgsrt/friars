@@ -145,6 +145,8 @@ const app = new Elysia()
 			cookie.userId.expires = new Date(Date.now() + 86400000 * 31);
 		}
 
+		console.log(cookie.userId.value, cookie.auth.value);
+
 		if (!cookie.auth.value) return <LoginView />;
 		if (!(await jwt.verify(cookie.auth.value))) return <LoginView />;
 
@@ -319,6 +321,6 @@ const app = new Elysia()
 					)
 			)
 	)
-	.listen(3000);
+	.listen(3005);
 
 listenForEmails();
