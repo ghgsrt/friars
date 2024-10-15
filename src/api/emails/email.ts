@@ -86,8 +86,8 @@ async function _sendBulkEmail(email: Email, entries: Entry[]) {
 			entries.map(async (entry) => ({
 				Destination: { ToAddresses: [entry.email] },
 				ReplacementTemplateData: JSON.stringify({
-					subject: processTemplate(email.subject!, entry),
-					htmlBody: processTemplate(email.content, entry),
+					subject: await processTemplate(email.subject!, entry),
+					htmlBody: await processTemplate(email.content, entry),
 				}),
 			}))
 		),
