@@ -1,5 +1,6 @@
 :root {
 	--clr-lines: rgb(112, 112, 112);
+	--clr-error: red;
 
 	--width: calc(100dvh * 9 / 16);
 	font-size: calc(var(--width) / 25);
@@ -91,9 +92,11 @@ form:has(:invalid, :required:placeholder-shown)
 
 label {
 	display: flex;
+	justify-content: space-between;
 	/* flex-direction: column; */
 }
-label:has(+ :required)::after {
+label:has(+ :required):not(:has(> span))::after,
+label:has(+ :required):has(> span) span:first-child::after {
 	content: '*';
 	color: red;
 }
@@ -144,6 +147,10 @@ input:not([type='checkbox']) {
 	box-shadow: inset 0 0 0.25rem 0 var(--clr-lines);
 }
 
+[id$='-error'] {
+	color: var(--clr-error);
+}
+
 #register-btn,
 #checkout-btn {
 	display: none;
@@ -154,4 +161,3 @@ input:not([type='checkbox']) {
 #register-form:has(button > :checked) #checkout-btn {
 	display: block;
 }
-

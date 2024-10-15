@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
 import { html } from '@elysiajs/html';
-import Elysia, { redirect, t } from 'elysia';
+import Elysia, { Cookie, redirect, t } from 'elysia';
 import Modal, { modal } from './src/components/Modal';
-import { HomeView, Index } from './src/AdminIndex';
+import { Home, HomeView, Index, Login, LoginView } from './src/AdminIndex';
 import {
 	CancelEmail,
 	DeleteEmail,
@@ -25,7 +25,7 @@ import {
 	PostEntries,
 	ReviveEntries,
 } from './src/api/entries/entry';
-import { EmailView, EmailForm, NewEmail, EmailLists } from './src/views/Email';
+import { EmailForm, NewEmail, EmailLists } from './src/views/Email';
 import { EntriesView } from './src/views/Entries';
 import { ProcessingView, RegisterView, ReturnView } from './src/RegIndex';
 import { createCheckoutSession, webhooks } from './src/api/stripe/stripe';
@@ -33,10 +33,51 @@ import { Processing } from './src/views/Processing';
 import { Ticket } from './src/views/Ticket';
 import { Return } from './src/views/Return';
 import { RegisterForm, RegisterFormControls } from './src/views/Register';
+import { jwt } from '@elysiajs/jwt';
 
-let app = new Elysia()
+const ADMIN_USERNAME = import.meta.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = import.meta.env.ADMIN_PASSWORD;
+const JWT_SECRET = import.meta.env.JWT_SECRET;
+
+if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !JWT_SECRET) {
+	throw new Error('Missing required environment variables');
+}
+
+export const login: (body: any) => Promise<boolean> = async ({
+	body,
+	cookie,
+	jwt,
+}) => {
+	const { username, password } = body as {
+		username: string;
+		password: string;
+	};
+
+	console.log(password, username, ADMIN_PASSWORD, ADMIN_USERNAME);
+
+	if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+		return false;
+	}
+
+	const token = await jwt.sign({ username });
+
+	cookie.auth.value = token;
+	cookie.auth.httpOnly = true;
+	cookie.auth.secure = import.meta.env.NODE_ENV === 'production';
+	cookie.auth.maxAge = 7 * 24 * 60 * 60; // 1 week;
+
+	return true;
+};
+
+const app = new Elysia()
 	.use(html())
 	.use(modal)
+	.use(
+		jwt({
+			name: 'jwt',
+			secret: JWT_SECRET,
+		})
+	)
 
 	.get('/reset.css', () => Bun.file('./src/styles/reset.css'))
 	.get('/styles.css', () => Bun.file('./src/styles/styles.css'))
@@ -80,30 +121,59 @@ let app = new Elysia()
 
 	.group('/stripe', (app) =>
 		app
-			.post('/create-checkout-session', ({ body }) =>
-				createCheckoutSession(body as EntryPostRequest)
-			)
+			.get('/pk', () => import.meta.env.STRIPE_PK)
+			.post('/create-checkout-session', ({ body }) => {
+				const email = (body as any).email as string;
+				const [name, host] = email.split('@');
+				if (!name || !host) return 'em:Invalid email';
+				const [dom, ext] = host.split('.');
+				if (!dom || !ext) return 'em:Invalid email';
+
+				return createCheckoutSession(body as EntryPostRequest);
+			})
 			.post('/webhooks', webhooks)
 	)
 
+	.get('/admin/styles.css', () => Bun.file('./src/styles/adminStyles.css'))
+	.get('/admin/clientJS.js', () => Bun.file('./src/scripts/adminJS.js'))
+
+	.get('/admin', async ({ cookie, jwt }) => {
+		if (!cookie.userId.value) {
+			cookie.userId.value = randomUUID();
+			cookie.userId.httpOnly = true;
+			cookie.userId.secure = true;
+			cookie.userId.sameSite = 'lax';
+			cookie.userId.expires = new Date(Date.now() + 86400000 * 31);
+		}
+
+		if (!cookie.auth.value) return <LoginView />;
+		if (!(await jwt.verify(cookie.auth.value))) return <LoginView />;
+
+		return <HomeView />;
+	})
+
+	.get('/admin/login', async ({ cookie, jwt }) => {
+		if (!cookie.userId.value) return redirect('/admin');
+		if (await jwt.verify(cookie.auth.value)) return <HomeView />;
+		return <Login uid={cookie.userId.value} />;
+	})
+	.post('/admin/login', login)
+	.get('/admin/logout', ({ cookie }) => {
+		cookie.auth.value = '';
+		cookie.auth.expires = new Date(Date.now() - 100000);
+		console.log('hm');
+		return redirect('/admin');
+	})
+
 	.group('/admin', (app) =>
 		app
-			.get('/', ({ cookie }) => {
-				cookie.userId.value ??= randomUUID();
-				cookie.userId.httpOnly = true;
-				cookie.userId.secure = true;
-				cookie.userId.sameSite = 'lax';
-				cookie.userId.expires = new Date(Date.now() + 86400000 * 31);
-
-				return <HomeView />;
-			})
-
 			.guard({
-				cookie: t.Object({ userId: t.String() }),
+				cookie: t.Object({ userId: t.String(), auth: t.String() }),
 			})
-
-			.get('/styles.css', () => Bun.file('./src/styles/adminStyles.css'))
-			.get('/clientJS.js', () => Bun.file('./src/scripts/adminJS.js'))
+			.onBeforeHandle(({ cookie, jwt, set }) => {
+				if (!jwt.verify(cookie.auth.value))
+					return (set.status = 'Unauthorized');
+			})
 
 			.post('/entries-view', ({ body }) => {
 				return (

@@ -148,7 +148,6 @@ export async function EmailItem({
 	type: AutomatedEmailType | ScheduledEmailType;
 	meta: Record<string, any>;
 }) {
-	console.log(email);
 	const t = email.sendDate
 		? parseTimestamp(email.sendDate, meta.today, meta.yesterday)
 		: undefined;
@@ -227,7 +226,6 @@ export function EmailList({
 	type: AutomatedEmailType | ScheduledEmailType;
 	meta: Record<string, any>;
 }) {
-	console.log(type);
 	return (
 		<EmailContentWrapper>
 			<div class='email-list'>

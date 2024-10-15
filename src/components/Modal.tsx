@@ -1,4 +1,4 @@
-import Elysia, { ModelValidator, t } from 'elysia';
+import Elysia, { t } from 'elysia';
 
 type ModalActions = {
 	onConfirm: (() => void) | ((body: Parameters<Elysia['post']>[1]) => void);
@@ -23,8 +23,11 @@ export default function Modal({
 	warning,
 	alert,
 	error,
+	customPost,
 	onConfirm,
 	onCancel,
+	noCancel,
+	confirmBtnText,
 	target,
 	children,
 }: {
@@ -33,8 +36,11 @@ export default function Modal({
 	warning?: string;
 	alert?: string;
 	error?: string;
+	customPost?: string;
 	onConfirm: ModalActions['onConfirm'];
 	onCancel?: ModalActions['onCancel'];
+	noCancel?: boolean;
+	confirmBtnText?: string;
 	target?: string;
 	children?: JSX.Element;
 }) {
@@ -68,7 +74,7 @@ export default function Modal({
 					)}
 				</div>
 				<form
-					hx-post='/modal'
+					hx-post={customPost ?? `/modal`}
 					hx-trigger='submit'
 					hx-target={target}
 					hx-on:htmx-after-request="if (event.detail.successful) document.getElementById('modal').replaceChildren();"
@@ -77,10 +83,12 @@ export default function Modal({
 					{error && <small class='modal-error'>error: {error}</small>}
 					<div
 						class='buttons'
-						style={{ marginTop: error ? '0.25rem' : '1.5rem' }}
+						// style={{ marginTop: error ? '0.25rem' : '1.5rem' }}
 					>
-						<button type='submit'>Confirm</button>
-						<button hx-delete='/modal'>Cancel</button>
+						<button type='submit'>
+							{(confirmBtnText ?? 'Confirm') as 'safe'}
+						</button>
+						{!noCancel && <button hx-delete='/modal'>Cancel</button>}
 					</div>
 				</form>
 			</div>

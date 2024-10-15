@@ -20,6 +20,7 @@ const modalActions = {
 	refresh: {
 		entries: () => entriesRefresher().click(),
 		emails: () => emailsRefresher().click(),
+		window: () => window.location.reload(),
 	},
 	replace: {
 		emailEditor: {
@@ -35,13 +36,20 @@ function handleModalResponse(message) {
 		const parts = action.split(':');
 
 		let layer = modalActions;
-		for (const part of parts) layer = layer[part];
+		for (const part of parts) {
+			if (!(part in layer)) return;
+			layer = layer[part];
+		}
 
-		if (typeof layer !== 'function')
-			return console.log('Not callable: ', layer);
+		if (typeof layer !== 'function') return;
 
 		layer();
 	}
+}
+
+async function logoutFromConsole() {
+	const res = await fetch('/admin/logout');
+	if (res.ok) window.location.reload();
 }
 
 //== SELECT STUFF ==------------------------------------------------------------------
@@ -283,7 +291,6 @@ function setSelectedCounter(checked, tab, refresh) {
 	if (typeof checked === 'number') selectedCounter[tab] = checked;
 	else checked ? selectedCounter[tab]++ : selectedCounter[tab]--;
 
-	console.log(selectedCounter[tab]);
 	if (selectedCounter[tab] === 1) {
 		entriesContainer().classList.add('only-one-selected');
 	} else {

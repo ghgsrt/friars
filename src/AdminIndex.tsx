@@ -2,6 +2,8 @@ import Html from '@kitajs/html';
 import { redirect } from 'elysia';
 import { EntriesView } from './views/Entries';
 import { EmailView } from './views/Email';
+import Modal from './components/Modal';
+import { login } from '..';
 
 export function Index(props: { children: JSX.Element }) {
 	return (
@@ -50,28 +52,70 @@ export function Footer() {
 	return <></>;
 }
 
+export function Home() {
+	return (
+		<div>
+			<Header />
+			<main class='home'>
+				<div
+					class='box'
+					hx-on:htmx-after-swap='refreshTabs(); refreshEntries();'
+				>
+					<EntriesView />
+				</div>
+				<br />
+				<div
+					class='box'
+					hx-on:htmx-after-swap='refreshTabs(); refreshEmails();'
+				>
+					<EmailView />
+				</div>
+			</main>
+			<Footer />
+		</div>
+	);
+}
+
 export function HomeView() {
 	return (
 		<Index>
-			<div>
-				<Header />
-				<main class='home'>
-					<div
-						class='box'
-						hx-on:htmx-after-swap='refreshTabs(); refreshEntries();'
-					>
-						<EntriesView />
-					</div>
-					<br />
-					<div
-						class='box'
-						hx-on:htmx-after-swap='refreshTabs(); refreshEmails();'
-					>
-						<EmailView />
-					</div>
-				</main>
-				<Footer />
-			</div>
+			<Home />
+		</Index>
+	);
+}
+
+export function Login({ uid, error }: { uid: string; error?: string }) {
+	return (
+		<Modal
+			uid={uid}
+			message='Login'
+			error={error}
+			noCancel={true}
+			confirmBtnText='Login'
+			onConfirm={async (elysiaProps: any) => {
+				if (await login(elysiaProps)) return 'refresh:window';
+
+				return <Login uid={uid} error={'Invalid credentials'} />;
+			}}
+		>
+			<>
+				<label>
+					Username
+					<input name='username' />
+				</label>
+				<label>
+					Password
+					<input name='password' />
+				</label>
+			</>
+		</Modal>
+	);
+}
+
+export function LoginView() {
+	return (
+		<Index>
+			<div hx-get='/admin/login' hx-trigger='load' hx-swap='none'></div>
 		</Index>
 	);
 }

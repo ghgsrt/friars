@@ -5,7 +5,7 @@ export function RegisterFormControls({ entry }: { entry?: Entry }) {
 		<>
 			<label for='firstName'>
 				<span>First Name</span>
-				<span id='firstNameError'></span>
+				<span id='first-name-error'></span>
 			</label>
 			<input
 				id='firstName'
@@ -16,7 +16,10 @@ export function RegisterFormControls({ entry }: { entry?: Entry }) {
 			/>
 			<label for='lastName'>Last Name</label>
 			<input id='lastName' name='lastName' value={entry?.lastName ?? ''} />
-			<label for='email'>Email</label>
+			<label for='email'>
+				<span>Email</span>
+				<span id='email-error'></span>
+			</label>
 			<input
 				id='email'
 				name='email'
@@ -74,18 +77,20 @@ export function RegisterForm() {
 				hx-post='/register'
 				hx-target='main'
 				hx-swap='innerHTML'
+				hx-on:htmx-before-request='clearFormError();'
 				hx-on:htmx-after-request='setFormError(event.detail.xhr.responseText);'
 			>
 				<h2>Register</h2>
 				<RegisterFormControls />
 				<br />
+				<p id='generic-error'></p>
 				<button
 					id='checkout-btn'
 					onclick="this.innerText = 'Loading...'; this.classList.add('loading'); event.preventDefault(); event.stopPropagation();"
 					hx-post='/stripe/create-checkout-session'
 					hx-trigger='click'
 					hx-swap='none'
-					hx-on:htmx-after-request='this.parentElement.parentElement.lastChild.lastChild.innerHTML = ""; initializeCheckout(this, event.detail.xhr.responseText);'
+					hx-on:htmx-after-request='this.parentElement.parentElement.lastChild.lastChild.innerHTML = ""; const res = event.detail.xhr.responseText; if (res.includes(":")) endLoading(this); else initializeCheckout(this, res);'
 				>
 					Checkout
 				</button>
