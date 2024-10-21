@@ -113,7 +113,11 @@ export function Login({ uid, error }: { uid: string; error?: string }) {
 export function LoginView() {
 	return (
 		<Index>
-			<div hx-get='/admin/login' hx-trigger='load' hx-swap='none'></div>
+			<div
+				hx-get='/admin/login'
+				hx-trigger='load delay:1s'
+				hx-swap='none'
+			></div>
 		</Index>
 	);
 }
