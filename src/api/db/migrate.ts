@@ -1,13 +1,9 @@
-import { migrate as migrateDrizzle } from 'drizzle-orm/neon-http/migrator';
+import { migrate as migrateDrizzle } from 'drizzle-orm/bun-sqlite/migrator';
 import { db } from './db';
 
-// export function migrate() {
-// 	migrateDrizzle(db, { migrationsFolder: './drizzle' });
-// }
-
-export async function migrate() {
+export function migrate() {
 	try {
-		await migrateDrizzle(db, { migrationsFolder: 'drizzle' });
+		migrateDrizzle(db, { migrationsFolder: 'drizzle' });
 		console.log('Migration completed');
 	} catch (error) {
 		console.error('Error during migration:', error);

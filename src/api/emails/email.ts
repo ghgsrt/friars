@@ -3,10 +3,11 @@ import type { Request } from '../../types/types';
 import {
 	cancelEmail,
 	deleteEmail,
+	getAllActiveEntries,
 	getAllEmails,
-	getAllEntries,
 	getEmail,
 	getHook,
+	getPendingEmails,
 	insertEmail,
 	reviveEmail,
 	updateEmail,
@@ -136,7 +137,7 @@ type Entries = {
 	canceled: Entry[];
 };
 async function getEntryEmails(): Promise<Entries> {
-	const entries = (await getAllEntries()).filter((entry) => !entry.deletedAt);
+	const entries = await getAllActiveEntries();
 
 	const everyone: Entry[] = [];
 	const registered: Entry[] = [];
@@ -158,24 +159,27 @@ async function getEntryEmails(): Promise<Entries> {
 async function flushEmails() {
 	console.log('flushing emails...');
 
-	const emails = await getAllEmails();
+	const emails = await getPendingEmails();
+	if (emails.length === 0) {
+		console.log('no emails to flush');
+		return;
+	}
+
 	const entries = await getEntryEmails();
 
 	const now = dateStringToComponents(new Date().toISOString().slice(0, -8));
 
 	for (const email of emails) {
-		if (email.status !== 'pending') continue;
-
 		if (!email.sendDate) {
-			console.error('No send date provided on outgoing email!: ', email);
+			console.error('no send date provided on outgoing email!: ', email);
 			continue;
 		}
 		if (!email.to) {
-			console.error('No to provided on outgoing email!: ', email);
+			console.error('no to provided on outgoing email!: ', email);
 			continue;
 		}
 		if (!email.subject) {
-			console.error('No subject provided on outgoing email!: ', email);
+			console.error('no subject provided on outgoing email!: ', email);
 			continue;
 		}
 
@@ -185,6 +189,8 @@ async function flushEmails() {
 		)
 			sendBulkEmail(email, entries);
 	}
+
+	console.log(`flushed ${emails.length} emails`);
 }
 
 type ImmutableEmailProps =
@@ -228,7 +234,7 @@ export function ReviveEmail(id: number, email: EmailPatchRequest) {
 	return reviveEmail(id, email);
 }
 export function listenForEmails() {
-	setInterval(flushEmails, 10000);
+	setInterval(flushEmails, 60000);
 }
 
 export async function processTemplate(template: string, entry?: Entry) {
