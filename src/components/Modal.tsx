@@ -59,7 +59,7 @@ export default function Modal({
 				}`}
 				hx-swap-oob='true'
 			>
-				<script>{`setTimeout(() => { const input = document.getElementById('modal').querySelector('input'); input?.focus(); })`}</script>
+				<script>{`setTimeout(() => { const input = document.getElementById('modal').querySelector('input'); input?.focus({ preventScroll: true }); })`}</script>
 				<div class='messages'>
 					<h2 safe>{message}</h2>
 					{!!warning && (
